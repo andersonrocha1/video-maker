@@ -12,14 +12,17 @@ const nlu = new NaturalLanguageUnderstandingV1({
   url: 'https://gateway.watsonplatform.net/natural-language-understanding/api/'
 })
 
+const state = require('./state.js')
 
-
-async function robot(content) {
+async function robot() {
+    const content = state.load()
    await fetchContentFromWikipedia(content)
     sanitizeContent(content)
     breakContentIntoSentences(content)
     limitMaximumSentences(content)
    await fetchKeywordsOfAllSentences(content)
+
+   state.save(content)
 
      async function fetchContentFromWikipedia(content) {
        
@@ -31,11 +34,11 @@ async function robot(content) {
         content.sourceContentOriginal = wikipediaContent.content
     }
 
-    function sanitizeContent(){
+    function sanitizeContent(content){
         const withoutBlankLinesAndMarkdown = removeBlankLinesAndMarkdown(content.sourceContentOriginal)
         const withoutDatesParentheses = removeDatesParentheses (withoutBlankLinesAndMarkdown)
         
-        console.log(withoutDatesParentheses)
+        //console.log(withoutDatesParentheses)
         content.sourceContentSanitiezed = withoutDatesParentheses
         function removeBlankLinesAndMarkdown(text){
 
